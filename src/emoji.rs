@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Gitmoji data structure matching the JSON schema
 #[derive(Debug, Deserialize, Serialize)]
@@ -23,33 +23,33 @@ impl EmojiLookup {
     pub fn code_to_unicode(code: &str) -> Option<&'static str> {
         EMOJI_MAP.get(code).copied()
     }
-    
+
     /// Get all available emoji codes
     pub fn all_codes() -> Vec<&'static str> {
         EMOJI_MAP.keys().copied().collect()
     }
-    
+
     /// Load emoji mapping from gitmojis.json file
     fn load_from_json() -> Result<HashMap<&'static str, &'static str>, Box<dyn std::error::Error>> {
         let json_content = include_str!("../fixtures/gitmojis.json");
         let gitmoji_data: GitmojiData = serde_json::from_str(json_content)?;
-        
+
         let mut map = HashMap::new();
         for gitmoji in gitmoji_data.gitmojis {
             // We need to use Box::leak to convert String to &'static str
             // This is safe for our use case since this data lives for the program duration
-            let code = Box::leak(gitmoji.code.into_boxed_str());
-            let emoji = Box::leak(gitmoji.emoji.into_boxed_str());
+            let code: &'static str = Box::leak(gitmoji.code.into_boxed_str());
+            let emoji: &'static str = Box::leak(gitmoji.emoji.into_boxed_str());
             map.insert(code, emoji);
         }
-        
+
         Ok(map)
     }
-    
+
     /// Fallback emoji mapping if JSON loading fails
     fn default_emoji_map() -> HashMap<&'static str, &'static str> {
         let mut map = HashMap::new();
-        
+
         // Generated from gitmojis.json
         map.insert(":art:", "🎨");
         map.insert(":zap:", "⚡️");
@@ -125,14 +125,14 @@ impl EmojiLookup {
         map.insert(":thread:", "🧵");
         map.insert(":safety_vest:", "🦺");
         map.insert(":airplane:", "✈️");
-        
+
         map
     }
 }
 
 /// Comprehensive gitmoji mapping - first tries loading from gitmojis.json, then falls back to default
 /// Maps emoji codes (like ":sparkles:") to Unicode characters
-pub static EMOJI_MAP: std::sync::LazyLock<HashMap<&'static str, &'static str>> = 
+pub static EMOJI_MAP: std::sync::LazyLock<HashMap<&'static str, &'static str>> =
     std::sync::LazyLock::new(|| {
         // First try to load from JSON
         if let Ok(map) = EmojiLookup::load_from_json() {
@@ -141,4 +141,4 @@ pub static EMOJI_MAP: std::sync::LazyLock<HashMap<&'static str, &'static str>> =
             // Fall back to hardcoded mapping
             EmojiLookup::default_emoji_map()
         }
-    }); 
+    });

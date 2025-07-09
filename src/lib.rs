@@ -13,11 +13,11 @@ mod tests {
     }
 }
 
-pub mod matcher;
-pub mod emoji;
 pub mod commit;
+pub mod emoji;
+pub mod matcher;
 
 // Re-export main types for convenience
-pub use matcher::{GitmojiMatcher, MatcherResult};
-pub use emoji::{EmojiLookup, EMOJI_MAP};
 pub use commit::{GitCommit, GitError};
+pub use emoji::{EMOJI_MAP, EmojiLookup};
+pub use matcher::{GitmojiMatcher, MatcherResult};

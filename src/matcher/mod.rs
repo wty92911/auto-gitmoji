@@ -10,7 +10,7 @@ pub trait GitmojiMatcher {
     /// Match a commit message to an appropriate gitmoji
     /// Returns (emoji_code, emoji_unicode, confidence_score) or None
     fn match_emoji(&self, message: &str) -> Result<MatcherResult>;
-    
+
     /// Get the name of this matcher
     fn name(&self) -> &'static str;
 }
@@ -23,9 +23,4 @@ impl MatcherFactory {
     pub fn simple() -> Box<dyn GitmojiMatcher> {
         Box::new(simple::SimpleMatcher::new())
     }
-    
-    /// Create the default matcher (currently simple)
-    pub fn default() -> Box<dyn GitmojiMatcher> {
-        Self::simple()
-    }
-} 
+}
