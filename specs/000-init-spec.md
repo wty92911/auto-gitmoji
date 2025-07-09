@@ -20,4 +20,3 @@ So you should extract the common interface from these methods for future extensi
 So help me to design the whole project as a spec document for `Cursor` to implement.
 
 
-

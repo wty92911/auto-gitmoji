@@ -12,3 +12,12 @@ mod tests {
         assert_eq!(result, 4);
     }
 }
+
+pub mod matcher;
+pub mod emoji;
+pub mod commit;
+
+// Re-export main types for convenience
+pub use matcher::{GitmojiMatcher, MatcherResult};
+pub use emoji::{EmojiLookup, EMOJI_MAP};
+pub use commit::{GitCommit, GitError};
