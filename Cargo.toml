@@ -1,11 +1,13 @@
 [package]
 name = "auto-gitmoji"
-authors=["wty92911 2066946886@qq.com"]
-description="A Rust CLI tool that automatically prepends appropriate gitmoji to your commit messages based on intelligent keyword matching."
+authors = ["wty92911 <2066946886@qq.com>"]
+description = "A Rust CLI tool that automatically prepends appropriate gitmoji to your commit messages based on intelligent keyword matching."
 version = "0.1.0"
 license = "MIT"
 repository = "https://github.com/wty92911/auto-gitmoji"
-edition = "2024"
+edition = "2021"
+keywords = ["cli", "git", "gitmoji", "commit"]
+categories = ["command-line-utilities"]
 
 [[bin]]
 name = "amoji"
