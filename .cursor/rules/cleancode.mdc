@@ -54,3 +54,7 @@ alwaysApply: true
 - Write clear commit messages
 - Make small, focused commits
 - Use meaningful branch names
+
+
+## Clean Format
+- Variables can be used directly in the `format!` string!

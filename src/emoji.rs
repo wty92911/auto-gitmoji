@@ -142,3 +142,137 @@ pub static EMOJI_MAP: std::sync::LazyLock<HashMap<&'static str, &'static str>> =
             EmojiLookup::default_emoji_map()
         }
     });
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_code_to_unicode_valid_codes() {
+        // Test some common emoji codes
+        assert_eq!(EmojiLookup::code_to_unicode(":sparkles:"), Some("✨"));
+        assert_eq!(EmojiLookup::code_to_unicode(":bug:"), Some("🐛"));
+        assert_eq!(EmojiLookup::code_to_unicode(":fire:"), Some("🔥"));
+        assert_eq!(EmojiLookup::code_to_unicode(":memo:"), Some("📝"));
+        assert_eq!(EmojiLookup::code_to_unicode(":rocket:"), Some("🚀"));
+    }
+
+    #[test]
+    fn test_code_to_unicode_invalid_code() {
+        assert_eq!(EmojiLookup::code_to_unicode(":nonexistent:"), None);
+        assert_eq!(EmojiLookup::code_to_unicode(""), None);
+        assert_eq!(EmojiLookup::code_to_unicode("sparkles"), None);
+    }
+
+    #[test]
+    fn test_all_codes_returns_valid_list() {
+        let codes = EmojiLookup::all_codes();
+
+        // Should have a reasonable number of codes
+        assert!(codes.len() > 50);
+
+        // All codes should be valid (convert to emoji)
+        for code in &codes {
+            assert!(EmojiLookup::code_to_unicode(code).is_some());
+        }
+
+        // Should contain some expected codes
+        assert!(codes.contains(&":sparkles:"));
+        assert!(codes.contains(&":bug:"));
+        assert!(codes.contains(&":fire:"));
+    }
+
+    #[test]
+    fn test_emoji_map_initialization() {
+        // Test that the static map is properly initialized
+        assert!(!EMOJI_MAP.is_empty());
+
+        // Test some key mappings exist
+        assert!(EMOJI_MAP.contains_key(":sparkles:"));
+        assert!(EMOJI_MAP.contains_key(":bug:"));
+        assert!(EMOJI_MAP.contains_key(":fire:"));
+
+        // Test that values are actual Unicode emojis
+        assert_eq!(*EMOJI_MAP.get(":sparkles:").unwrap(), "✨");
+        assert_eq!(*EMOJI_MAP.get(":bug:").unwrap(), "🐛");
+    }
+
+    #[test]
+    fn test_default_emoji_map_fallback() {
+        let fallback_map = EmojiLookup::default_emoji_map();
+
+        // Should have essential emojis
+        assert!(fallback_map.len() >= 10);
+        assert_eq!(fallback_map.get(":sparkles:"), Some(&"✨"));
+        assert_eq!(fallback_map.get(":bug:"), Some(&"🐛"));
+        assert_eq!(fallback_map.get(":fire:"), Some(&"🔥"));
+        assert_eq!(fallback_map.get(":memo:"), Some(&"📝"));
+    }
+
+    #[test]
+    fn test_gitmoji_data_structure() {
+        // Test JSON loading works with valid structure
+        let json_content = include_str!("../fixtures/gitmojis.json");
+        let gitmoji_data: Result<GitmojiData, _> = serde_json::from_str(json_content);
+
+        assert!(gitmoji_data.is_ok());
+        let data = gitmoji_data.unwrap();
+
+        // Should have reasonable number of gitmojis
+        assert!(data.gitmojis.len() > 60);
+
+        // Each gitmoji should have required fields
+        for gitmoji in &data.gitmojis {
+            assert!(!gitmoji.emoji.is_empty());
+            assert!(gitmoji.code.starts_with(':') && gitmoji.code.ends_with(':'));
+            assert!(!gitmoji.description.is_empty());
+            assert!(!gitmoji.name.is_empty());
+        }
+    }
+
+    #[test]
+    fn test_emoji_codes_format() {
+        let codes = EmojiLookup::all_codes();
+
+        // All codes should follow the :name: format
+        for code in codes {
+            assert!(code.starts_with(':'), "Code '{code}' should start with ':'");
+            assert!(code.ends_with(':'), "Code '{code}' should end with ':'");
+            assert!(
+                code.len() > 2,
+                "Code '{code}' should be more than just '::'"
+            );
+        }
+    }
+
+    #[test]
+    fn test_comprehensive_emoji_coverage() {
+        // Test that we have comprehensive coverage of major gitmoji categories
+        let codes = EmojiLookup::all_codes();
+
+        // Feature-related
+        assert!(codes.contains(&":sparkles:")); // New feature
+        assert!(codes.contains(&":zap:")); // Performance
+
+        // Bug-related
+        assert!(codes.contains(&":bug:")); // Bug fix
+        assert!(codes.contains(&":ambulance:")); // Critical hotfix
+
+        // Documentation
+        assert!(codes.contains(&":memo:")); // Documentation
+
+        // Testing
+        assert!(codes.contains(&":white_check_mark:")); // Tests
+
+        // Refactoring
+        assert!(codes.contains(&":recycle:")); // Refactoring
+
+        // Dependencies
+        assert!(codes.contains(&":heavy_plus_sign:")); // Add dependency
+        assert!(codes.contains(&":heavy_minus_sign:")); // Remove dependency
+
+        // Config/Build
+        assert!(codes.contains(&":wrench:")); // Configuration
+        assert!(codes.contains(&":construction_worker:")); // CI
+    }
+}
