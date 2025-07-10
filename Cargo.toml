@@ -8,6 +8,7 @@ repository = "https://github.com/wty92911/auto-gitmoji"
 edition = "2021"
 keywords = ["cli", "git", "gitmoji", "commit"]
 categories = ["command-line-utilities"]
+readme = "README.md"
 
 [[bin]]
 name = "amoji"
