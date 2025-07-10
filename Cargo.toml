@@ -2,7 +2,7 @@
 name = "auto-gitmoji"
 authors = ["wty92911 <2066946886@qq.com>"]
 description = "A Rust CLI tool that automatically prepends appropriate gitmoji to your commit messages based on intelligent keyword matching."
-version = "0.1.0"
+version = "0.1.1"
 license = "MIT"
 repository = "https://github.com/wty92911/auto-gitmoji"
 edition = "2021"
