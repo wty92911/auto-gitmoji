@@ -1,14 +1,16 @@
+#[cfg(feature = "llm")]
+pub mod llm;
 pub mod simple;
 
 use anyhow::Result;
 
-/// Confidence score for emoji matches
-pub type MatcherResult = Option<(String, String, f32)>; // (emoji_code, emoji_unicode, confidence)
+/// Return type for emoji matches
+pub type MatcherResult = Option<(String, String)>; // (emoji_code, format_message)
 
 /// Core trait for gitmoji matching strategies
 pub trait GitmojiMatcher {
     /// Match a commit message to an appropriate gitmoji
-    /// Returns (emoji_code, emoji_unicode, confidence_score) or None
+    /// Returns (emoji_code, formatted_message) or None
     fn match_emoji(&self, message: &str) -> Result<MatcherResult>;
 
     /// Get the name of this matcher
@@ -22,6 +24,18 @@ impl MatcherFactory {
     /// Create a simple keyword-based matcher
     pub fn simple() -> Box<dyn GitmojiMatcher> {
         Box::new(simple::SimpleMatcher::new())
+    }
+
+    /// Create an LLM matcher with the given configuration
+    #[cfg(feature = "llm")]
+    pub fn llm(config: llm::LLMConfig) -> Box<dyn GitmojiMatcher> {
+        Box::new(llm::LLMMatcher::new(config))
+    }
+
+    /// Create an LLM matcher with fallback to simple matcher
+    #[cfg(feature = "llm")]
+    pub fn llm_with_fallback(config: llm::LLMConfig) -> Box<dyn GitmojiMatcher> {
+        Box::new(llm::LLMWithFallbackMatcher::new(config))
     }
 }
 
@@ -52,10 +66,9 @@ mod tests {
         let result = matcher.match_emoji("fix bug").unwrap();
         assert!(result.is_some());
 
-        let (code, emoji, confidence) = result.unwrap();
+        let (code, format_message) = result.unwrap();
         assert!(!code.is_empty());
-        assert!(!emoji.is_empty());
-        assert!((0.0..=1.0).contains(&confidence));
+        assert!(!format_message.is_empty());
     }
 
     #[test]
@@ -99,24 +112,34 @@ mod tests {
     }
 
     #[test]
-    fn test_confidence_score_range() {
+    fn test_format_message_structure() {
         let matcher = MatcherFactory::simple();
 
         let test_messages = vec![
-            "fix critical bug", // Should have high confidence
-            "add new feature",  // Should have high confidence
-            "random text here", // Should have low confidence (fallback)
+            "fix critical bug", // Should have keyword match
+            "add new feature",  // Should have keyword match
+            "random text here", // Should have fallback
         ];
 
         for message in test_messages {
             let result = matcher.match_emoji(message).unwrap();
             assert!(result.is_some());
-            let (_code, _emoji, confidence) = result.unwrap();
+            let (code, format_message) = result.unwrap();
 
-            // Confidence should be between 0 and 1
+            // Code should follow :name: format
+            assert!(code.starts_with(':'), "Code should start with ':': {code}");
+            assert!(code.ends_with(':'), "Code should end with ':': {code}");
+
+            // Format message should contain the original message
             assert!(
-                (0.0..=1.0).contains(&confidence),
-                "Invalid confidence {confidence} for message: '{message}'"
+                format_message.contains(message),
+                "Format message should contain original message: '{format_message}' should contain '{message}'"
+            );
+
+            // Format message should start with the emoji code
+            assert!(
+                format_message.starts_with(&code),
+                "Format message should start with emoji code: '{format_message}' should start with '{code}'"
             );
         }
     }
@@ -126,7 +149,7 @@ mod tests {
         let matcher = MatcherFactory::simple();
 
         let result = matcher.match_emoji("fix bug").unwrap().unwrap();
-        let (code, _emoji, _confidence) = result;
+        let (code, _format_message) = result;
 
         // Emoji code should follow :name: format
         assert!(code.starts_with(':'), "Code should start with ':': {code}");
@@ -135,17 +158,20 @@ mod tests {
     }
 
     #[test]
-    fn test_unicode_emoji_format() {
+    fn test_formatted_message_content() {
         let matcher = MatcherFactory::simple();
 
         let result = matcher.match_emoji("fix bug").unwrap().unwrap();
-        let (_code, emoji, _confidence) = result;
+        let (_code, format_message) = result;
 
-        // Emoji should be actual Unicode character(s)
-        assert!(!emoji.is_empty(), "Emoji should not be empty");
+        // Format message should contain meaningful content
         assert!(
-            emoji.chars().any(|c| c as u32 > 127),
-            "Should contain Unicode characters"
+            !format_message.is_empty(),
+            "Format message should not be empty"
+        );
+        assert!(
+            format_message.contains("fix bug"),
+            "Format message should contain original text"
         );
     }
 
@@ -174,10 +200,9 @@ mod tests {
         let result = matcher.match_emoji("add feature").unwrap();
         assert!(result.is_some());
 
-        let (code, emoji, confidence) = result.unwrap();
+        let (code, format_message) = result.unwrap();
         assert!(!code.is_empty());
-        assert!(!emoji.is_empty());
-        assert!(confidence > 0.0);
+        assert!(!format_message.is_empty());
     }
 
     #[test]

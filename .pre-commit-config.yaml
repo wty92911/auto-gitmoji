@@ -41,6 +41,13 @@ repos:
         language: rust
         files: \.*$
         pass_filenames: false
+      - id: taplo
+        name: taplo
+        description: format toml
+        entry: bash -c 'taplo format'
+        language: rust
+        files: \.*$
+        pass_filenames: false
       - id: cargo-check
         name: cargo check
         description: Check the package for errors.

@@ -1,4 +1,6 @@
 use anyhow::Result;
+#[cfg(feature = "llm")]
+use auto_gitmoji::matcher::llm::{LLMConfig, LLMModel, LLMProvider};
 use auto_gitmoji::{commit::GitCommit, emoji::EmojiLookup, matcher::MatcherFactory};
 use clap::Parser;
 
@@ -108,19 +110,31 @@ fn main() -> Result<()> {
         .ok_or_else(|| anyhow::anyhow!("Message argument is required"))?;
 
     // Create matcher and find appropriate emoji
-    let matcher = MatcherFactory::simple();
+    let matcher = if cfg!(feature = "llm") {
+        #[cfg(feature = "llm")]
+        {
+            // just SiliconFlow is supported now
+            MatcherFactory::llm_with_fallback(LLMConfig::from_env(
+                LLMProvider::SiliconFlow,
+                LLMModel::Qwen2_7bInstruct,
+            )?)
+        }
+        #[cfg(not(feature = "llm"))]
+        {
+            MatcherFactory::simple()
+        }
+    } else {
+        MatcherFactory::simple()
+    };
     let match_result = matcher.match_emoji(&message)?;
 
-    if let Some((emoji_code, emoji_unicode, confidence)) = match_result {
-        // Format the commit message
-        let full_message = GitCommit::format_message(&emoji_code, &message);
+    if let Some((emoji_code, formatted_message)) = match_result {
+        // Get the emoji unicode for display
+        let emoji_unicode = EmojiLookup::code_to_unicode(&emoji_code).unwrap_or("❓");
 
         // Display the emoji and message to user with enhanced formatting
-        println!(
-            "{BOLD}{GREEN}🎯 Matched emoji:{RESET} {emoji_unicode} {DIM}{emoji_code}{RESET} {BOLD}{CYAN}(confidence: {:.0}%){RESET}",
-            confidence * 100.0,
-        );
-        println!("{BOLD}{BLUE}📝 Full message:{RESET} {full_message}");
+        println!("{BOLD}{GREEN}🎯 Matched emoji:{RESET} {emoji_unicode} {DIM}{emoji_code}{RESET}",);
+        println!("{BOLD}{BLUE}📝 Full message:{RESET} {formatted_message}");
 
         // Check for staged changes before committing
         if !args.dry_run {
@@ -142,7 +156,7 @@ fn main() -> Result<()> {
         }
 
         // Execute the commit
-        match GitCommit::commit(&full_message, args.dry_run) {
+        match GitCommit::commit(&formatted_message, args.dry_run) {
             Ok(result) => {
                 println!("{BRIGHT_GREEN}✅ {RESET} {result}");
             }

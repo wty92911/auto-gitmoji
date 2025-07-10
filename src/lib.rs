@@ -4,8 +4,12 @@ pub mod matcher;
 
 // Re-export main types for convenience
 pub use commit::{GitCommit, GitError};
-pub use emoji::{EmojiLookup, EMOJI_MAP};
-pub use matcher::{GitmojiMatcher, MatcherResult};
+pub use emoji::{EMOJI_MAP, EmojiLookup};
+pub use matcher::{GitmojiMatcher, MatcherFactory, MatcherResult};
+
+// Re-export LLM types only when the feature is enabled
+#[cfg(feature = "llm")]
+pub use matcher::llm::{LLMConfig, LLMMatcher, LLMModel, LLMProvider, LLMWithFallbackMatcher};
 
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
@@ -28,14 +32,13 @@ mod tests {
         // Test matcher
         let result = matcher.match_emoji("fix critical bug").unwrap();
         assert!(result.is_some());
-        let (code, emoji_unicode, confidence) = result.unwrap();
+        let (code, format_message) = result.unwrap();
         assert_eq!(code, ":bug:");
-        assert_eq!(emoji_unicode, "🐛");
-        assert_eq!(confidence, 1.0);
+        assert_eq!(format_message, ":bug: fix critical bug");
 
-        // Test commit formatting
-        let formatted = GitCommit::format_message(&code, "fix critical bug");
-        assert_eq!(formatted, ":bug: fix critical bug");
+        // Test that emoji lookup works for the matched code
+        let emoji_unicode = EmojiLookup::code_to_unicode(&code);
+        assert_eq!(emoji_unicode, Some("🐛"));
     }
 
     #[test]
@@ -55,22 +58,19 @@ mod tests {
             let match_result = matcher.match_emoji(message).unwrap();
             assert!(match_result.is_some());
 
-            let (code, emoji, confidence) = match_result.unwrap();
+            let (code, format_message) = match_result.unwrap();
 
             // Verify emoji lookup
             let emoji_from_lookup = EmojiLookup::code_to_unicode(&code);
             assert!(emoji_from_lookup.is_some());
-            assert_eq!(emoji_from_lookup.unwrap(), emoji);
 
-            // Format commit message
-            let formatted = GitCommit::format_message(&code, message);
-            assert!(formatted.contains(&code));
-            assert!(formatted.contains(message));
+            // Verify format message structure
+            assert!(format_message.contains(message));
+            assert!(format_message.starts_with(&code));
 
-            // For exact keyword matches, should have high confidence
+            // For exact keyword matches, should match expected code
             if code == expected_code {
-                assert_eq!(confidence, 1.0);
-                assert_eq!(emoji, expected_emoji);
+                assert_eq!(emoji_from_lookup.unwrap(), expected_emoji);
             }
         }
     }
@@ -86,7 +86,10 @@ mod tests {
         let _emoji = EmojiLookup::code_to_unicode(":sparkles:");
 
         // Test MatcherResult export
-        let _result: MatcherResult = Some((":sparkles:".to_string(), "✨".to_string(), 1.0));
+        let _result: MatcherResult = Some((
+            ":sparkles:".to_string(),
+            ":sparkles: test message".to_string(),
+        ));
 
         // Test EMOJI_MAP export
         assert!(!EMOJI_MAP.is_empty());
@@ -132,12 +135,15 @@ mod tests {
             let result = matcher.match_emoji(message).unwrap();
             assert!(result.is_some());
 
-            let (code, emoji, _confidence) = result.unwrap();
+            let (code, format_message) = result.unwrap();
 
-            // The emoji from matcher should match emoji lookup
+            // The emoji code should be valid in lookup
             let lookup_emoji = EmojiLookup::code_to_unicode(&code);
             assert!(lookup_emoji.is_some());
-            assert_eq!(lookup_emoji.unwrap(), emoji);
+
+            // Format message should contain the original message
+            assert!(format_message.contains(message));
+            assert!(format_message.starts_with(&code));
         }
     }
 

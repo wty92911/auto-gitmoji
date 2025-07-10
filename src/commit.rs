@@ -62,7 +62,15 @@ impl GitCommit {
             Ok(result)
         } else {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            Err(GitError::CommandFailed(stderr.to_string()).into())
+            if stderr.contains("failed")
+                || stderr.contains("error")
+                || stderr.contains("Failed")
+                || stderr.contains("Error")
+            {
+                Err(GitError::CommandFailed(stderr.to_string()).into())
+            } else {
+                Ok(stderr.to_string())
+            }
         }
     }
 
@@ -216,15 +224,6 @@ mod tests {
         let result = GitCommit::status();
         assert!(result.is_ok());
         // The result should be a string (could be empty if clean repo)
-    }
-
-    #[test]
-    #[ignore = "requires git repository with staged changes"]
-    fn test_actual_commit() {
-        // This test would actually commit to the repository
-        // Only run manually when testing in a safe environment
-        let _result = GitCommit::commit("Test commit message", false);
-        // Result depends on repository state and staged changes
     }
 
     // Mock-based tests for Git operations

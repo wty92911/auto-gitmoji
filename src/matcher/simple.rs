@@ -1,5 +1,4 @@
 use super::{GitmojiMatcher, MatcherResult};
-use crate::emoji::EmojiLookup;
 use anyhow::Result;
 use serde_json;
 use std::collections::HashMap;
@@ -83,18 +82,14 @@ impl SimpleMatcher {
 impl GitmojiMatcher for SimpleMatcher {
     fn match_emoji(&self, message: &str) -> Result<MatcherResult> {
         if let Some(emoji_code) = self.find_first_keyword_match(message) {
-            if let Some(emoji_unicode) = EmojiLookup::code_to_unicode(emoji_code) {
-                // High confidence for exact keyword matches
-                return Ok(Some((
-                    emoji_code.to_string(),
-                    emoji_unicode.to_string(),
-                    1.0,
-                )));
-            }
+            let formatted_message = format!("{emoji_code} {message}");
+            return Ok(Some((emoji_code.to_string(), formatted_message)));
         }
 
         // Fallback to sparkles for general changes if no keyword match
-        Ok(Some((":sparkles:".to_string(), "✨".to_string(), 0.3)))
+        let emoji_code = ":sparkles:";
+        let formatted_message = format!("{emoji_code} {message}");
+        Ok(Some((emoji_code.to_string(), formatted_message)))
     }
 
     fn name(&self) -> &'static str {
@@ -125,12 +120,11 @@ mod tests {
 
         let result = matcher.match_emoji("fix login bug").unwrap();
         assert!(result.is_some());
-        let (code, emoji, confidence) = result.unwrap();
+        let (code, format_message) = result.unwrap();
 
         // Should match "fix" keyword
         assert_eq!(code, ":bug:");
-        assert_eq!(emoji, "🐛");
-        assert_eq!(confidence, 1.0); // High confidence for exact match
+        assert_eq!(format_message, ":bug: fix login bug");
     }
 
     #[test]
@@ -140,11 +134,11 @@ mod tests {
         // Test that it matches the first keyword found, not later ones
         let result = matcher.match_emoji("add fix for the issue").unwrap();
         assert!(result.is_some());
-        let (code, _emoji, confidence) = result.unwrap();
+        let (code, format_message) = result.unwrap();
 
-        // Should match "add" (sparkles) not "fix" (bug) since "add" comes first
-        assert_eq!(code, ":sparkles:");
-        assert_eq!(confidence, 1.0);
+        // Should match "fix" (bug)
+        assert_eq!(code, ":bug:");
+        assert_eq!(format_message, ":bug: add fix for the issue");
     }
 
     #[test]
@@ -161,8 +155,9 @@ mod tests {
         for message in test_cases {
             let result = matcher.match_emoji(message).unwrap();
             assert!(result.is_some());
-            let (code, _emoji, _confidence) = result.unwrap();
+            let (code, format_message) = result.unwrap();
             assert_eq!(code, ":bug:", "Failed for message: '{message}'");
+            assert_eq!(format_message, format!(":bug: {message}"));
         }
     }
 
@@ -181,8 +176,9 @@ mod tests {
         for message in test_cases {
             let result = matcher.match_emoji(message).unwrap();
             assert!(result.is_some());
-            let (code, _emoji, _confidence) = result.unwrap();
+            let (code, format_message) = result.unwrap();
             assert_eq!(code, ":bug:", "Failed for message: '{message}'");
+            assert_eq!(format_message, format!(":bug: {message}"));
         }
     }
 
@@ -193,12 +189,11 @@ mod tests {
         // Test with message that has no matching keywords
         let result = matcher.match_emoji("random unmatched message").unwrap();
         assert!(result.is_some());
-        let (code, emoji, confidence) = result.unwrap();
+        let (code, format_message) = result.unwrap();
 
         // Should fall back to sparkles
         assert_eq!(code, ":sparkles:");
-        assert_eq!(emoji, "✨");
-        assert_eq!(confidence, 0.3); // Low confidence for fallback
+        assert_eq!(format_message, ":sparkles: random unmatched message");
     }
 
     #[test]
@@ -207,12 +202,11 @@ mod tests {
 
         let result = matcher.match_emoji("").unwrap();
         assert!(result.is_some());
-        let (code, emoji, confidence) = result.unwrap();
+        let (code, format_message) = result.unwrap();
 
         // Should fall back to sparkles
         assert_eq!(code, ":sparkles:");
-        assert_eq!(emoji, "✨");
-        assert_eq!(confidence, 0.3);
+        assert_eq!(format_message, ":sparkles: ");
     }
 
     #[test]
@@ -221,12 +215,11 @@ mod tests {
 
         let result = matcher.match_emoji("   \t  \n  ").unwrap();
         assert!(result.is_some());
-        let (code, emoji, confidence) = result.unwrap();
+        let (code, format_message) = result.unwrap();
 
         // Should fall back to sparkles
         assert_eq!(code, ":sparkles:");
-        assert_eq!(emoji, "✨");
-        assert_eq!(confidence, 0.3);
+        assert_eq!(format_message, ":sparkles:    \t  \n  ");
     }
 
     #[test]
@@ -241,18 +234,16 @@ mod tests {
             ("refactor: improve code structure", ":recycle:"), // refactor
             ("perf: optimize database queries", ":zap:"),    // perf
             ("style: fix code formatting", ":lipstick:"),    // style
-            ("chore: update dependencies", ":arrow_up:"),    // chore might match first or fallback
+            ("chore: update dependencies", ":package:"),     // chore for package
         ];
 
         for (message, expected_code) in test_cases {
             let result = matcher.match_emoji(message).unwrap();
             assert!(result.is_some(), "No match for message: '{message}'");
-            let (code, _emoji, confidence) = result.unwrap();
+            let (code, format_message) = result.unwrap();
 
-            // For exact keyword matches, confidence should be high
-            if code != ":sparkles:" || confidence == 1.0 {
-                assert_eq!(code, expected_code, "Failed for message: '{message}'");
-            }
+            assert_eq!(code, expected_code, "Failed for message: '{message}'");
+            assert_eq!(format_message, format!("{expected_code} {message}"));
         }
     }
 
@@ -263,8 +254,9 @@ mod tests {
         // Test that "fix" in "prefix" doesn't match
         let result = matcher.match_emoji("prefix something").unwrap();
         // Should fall back since "prefix" contains "fix" but isn't the word "fix"
-        let (_code, _emoji, confidence) = result.unwrap();
-        assert_eq!(confidence, 0.3); // Should be fallback confidence
+        let (code, format_message) = result.unwrap();
+        assert_eq!(code, ":sparkles:"); // Should be fallback
+        assert_eq!(format_message, ":sparkles: prefix something");
     }
 
     #[test]
@@ -276,11 +268,12 @@ mod tests {
             .match_emoji("add new test for authentication")
             .unwrap();
         assert!(result.is_some());
-        let (_code, _emoji, confidence) = result.unwrap();
+        let (code, format_message) = result.unwrap();
 
         // Should match first keyword found
-        assert_eq!(confidence, 1.0); // High confidence for keyword match
-                                     // The exact emoji depends on which keyword is found first
+        // The exact emoji depends on which keyword is found first
+        assert!(!code.is_empty());
+        assert!(format_message.contains("add new test for authentication"));
     }
 
     #[test]
@@ -345,19 +338,23 @@ mod tests {
     }
 
     #[test]
-    fn test_confidence_scores() {
+    fn test_result_format() {
         let matcher = SimpleMatcher::new();
 
-        // Test keyword match has high confidence
+        // Test keyword match
         let result = matcher.match_emoji("fix the bug").unwrap().unwrap();
-        assert_eq!(result.2, 1.0);
+        let (code, format_message) = result;
+        assert_eq!(code, ":bug:");
+        assert_eq!(format_message, ":bug: fix the bug");
 
-        // Test fallback has low confidence
+        // Test fallback
         let result = matcher
             .match_emoji("random unmatched text")
             .unwrap()
             .unwrap();
-        assert_eq!(result.2, 0.3);
+        let (code, format_message) = result;
+        assert_eq!(code, ":sparkles:");
+        assert_eq!(format_message, ":sparkles: random unmatched text");
     }
 
     #[test]

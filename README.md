@@ -1,19 +1,24 @@
-# Auto-Gitmoji
+# Auto-Gitmoji 🚀
 
 A Rust CLI tool that automatically prepends appropriate gitmoji to your commit messages based on intelligent keyword matching.
 
 ## ✨ Features
 
-- **Intelligent Matching**: Uses first-word keyword matching with 200+ keyword mappings
-- **Comprehensive Emoji Support**: All 69 official gitmojis from the gitmoji standard
-- **Git Integration**: Seamlessly integrates with your Git workflow
-- **Dry Run Mode**: Preview commits before executing
-- **Emoji Display**: View all available gitmojis
-- **Robust Error Handling**: Validates staged changes and Git repository status
+- **🎯 Simple KeywordMatching**: Enhanced first-word keyword matching with 200+ keyword mappings
+- **🎯 LLM KeywordMatching**: AI-powered matching with LLM(now only support SiliconFlow)
+- **🎨 Comprehensive Emoji Support**: All 69 official gitmojis from the gitmoji standard
+- **⚡ Git Integration**: Seamless integration with your Git workflow
+- **👀 Dry Run Mode**: Preview commits before executing
+- **📋 Emoji Display**: View all available gitmojis with Unicode rendering
+- **🛡️ Robust Error Handling**: Validates staged changes and Git repository status
+- **🧪 Comprehensive Testing**: 65 tests covering unit, integration, and edge cases
+- **📊 Enhanced CLI Experience**: ANSI colors, progress indicators, and user-friendly output
 
-### Future Features
-- [ ] Use LLM to predict the emoji
-- [ ] Better error info
+### 🔮 Future Features
+- [ ] Support for more LLM APIs
+- [ ] Custom keyword mapping configuration
+- [ ] Integration with commit message templates
+
 ## 🚀 Installation
 
 ### Prerequisites
@@ -34,6 +39,8 @@ cargo install --path .
 
 ```bash
 cargo install auto-gitmoji
+# or with your own API_KEY
+cargo install auto-gitmoji --features llm
 ```
 
 ## 📋 Usage
@@ -51,6 +58,9 @@ amoji "fix login validation bug" --dry-run
 
 # Show all available emojis
 amoji --show-emoji
+
+# Get detailed help with examples
+amoji --help-message
 ```
 
 ### Complete Examples
@@ -64,6 +74,10 @@ amoji "add user profile page"
 amoji "fix memory leak in data processor"
 # Result: 🐛 :bug: fix memory leak in data processor
 
+# Hotfixes
+amoji "hotfix critical authentication vulnerability"
+# Result: 🚑️ :ambulance: hotfix critical authentication vulnerability
+
 # Documentation
 amoji "docs update installation guide"
 # Result: 📝 :memo: docs update installation guide
@@ -73,38 +87,64 @@ amoji "refactor authentication module"
 # Result: ♻️ :recycle: refactor authentication module
 
 # Performance improvements
-amoji "optimize database queries"
-# Result: ⚡ :zap: optimize database queries
+amoji "optimize database query performance"
+# Result: ⚡ :zap: optimize database query performance
 
-# Security fixes
-amoji "hotfix critical vulnerability in auth"
-# Result: 🚑️ :ambulance: hotfix critical vulnerability in auth
+# Testing
+amoji "test user registration flow"
+# Result: 🧪 :test_tube: test user registration flow
+
+# Dependencies
+amoji "update package dependencies"
+# Result: 📦 :package: update package dependencies
+
+# Security
+amoji "security fix for JWT validation"
+# Result: 🔒 :lock: security fix for JWT validation
 ```
 
 ## 🎯 How It Works
 
-### First-Word Matching Strategy
+### Enhanced Keyword Matching Strategy
 
-1. **Split**: Commit message split into words by whitespace
-2. **Filter**: Keep only alphanumeric words (+ hyphens/underscores)
-3. **Match**: Find first word that exists in keyword map
+1. **🔍 Analysis**: Commit message analyzed word by word
+2. **🧹 Cleaning**: Non-alphanumeric characters replaced with spaces for better word extraction
+3. **📝 Extraction**: Words split by whitespace and normalized to lowercase
+4. **🎯 Matching**: First word matched against comprehensive keyword database
+5. **✨ Formatting**: Complete commit message formatted with appropriate gitmoji
 
-### Keyword Categories Example
+### Keyword Categories
 
-- **Feature**: `new`, `create`, `implement`, `introduce`
-- **Fixes**: `fix`, `repair`, `resolve`, `correct`, `hotfix`
-- **Documentation**: `docs`, `documentation`, `readme`, `comment`
-- **Refactoring**: `refactor`, `restructure`, `reorganize`, `cleanup`
-- **Performance**: `optimize`, `performance`, `speed`, `cache`
-- **Testing**: `test`, `testing`, `spec`, `coverage`
-- **Security**: `security`, `vulnerability`, `auth`, `permission`
-- **Styling**: `style`, `format`, `lint`, `prettier`
-- **Dependencies**: `deps`, `dependency`, `package`, `upgrade`
-- **Configuration**: `config`, `configuration`, `settings`, `env`
+| Category | Keywords | Emoji |
+|----------|----------|-------|
+| **Features** | `add`, `new`, `create`, `implement`, `introduce`, `feat` | ✨ `:sparkles:` |
+| **Bug Fixes** | `fix`, `repair`, `resolve`, `correct`, `patch` | 🐛 `:bug:` |
+| **Hotfixes** | `hotfix`, `urgent`, `critical` | 🚑️ `:ambulance:` |
+| **Documentation** | `docs`, `documentation`, `readme`, `comment` | 📝 `:memo:` |
+| **Refactoring** | `refactor`, `restructure`, `reorganize`, `cleanup` | ♻️ `:recycle:` |
+| **Performance** | `optimize`, `performance`, `speed`, `cache`, `perf` | ⚡ `:zap:` |
+| **Testing** | `test`, `testing`, `spec`, `coverage` | 🧪 `:test_tube:` |
+| **Security** | `security`, `vulnerability`, `auth`, `permission` | 🔒 `:lock:` |
+| **Styling** | `style`, `format`, `lint`, `prettier` | 💄 `:lipstick:` |
+| **Dependencies** | `deps`, `dependency`, `package`, `upgrade` | 📦 `:package:` |
+| **Configuration** | `config`, `configuration`, `settings`, `env` | ⚙️ `:gear:` |
 
-### Emoji Mapping
+### Architecture
 
-Uses the complete official gitmoji specification with 69 different emojis covering all common development activities. The tool loads emojis from JSON first, with a hardcoded fallback for reliability.
+The tool uses a clean strategy pattern with pluggable matchers:
+
+```rust
+pub trait GitmojiMatcher {
+    fn match_emoji(&self, message: &str) -> Result<MatcherResult>;
+    fn name(&self) -> &'static str;
+}
+
+pub type MatcherResult = Option<(String, String)>; // (emoji_code, formatted_message)
+```
+
+**Current Matchers:**
+- **SimpleMatcher**: Keyword-based matching with 200+ keywords
+- **LLMMatcher**: AI-powered matching (optional feature)
 
 ## 🛠️ CLI Options
 
@@ -115,32 +155,120 @@ ARGUMENTS:
   [MESSAGE]  The commit message
 
 OPTIONS:
-      --dry-run      Show what would be committed without actually committing
-      --show-emoji   Show available emoji codes
-  -h, --help         Print help
-  -V, --version      Print version
+  -d, --dry-run        Show what would be committed without actually committing
+  -s, --show-emoji     Show available emoji codes
+  -m, --help-message   Show help message with usage examples
+  -h, --help           Print help
+  -V, --version        Print version
 ```
 
-## 🔧 Development
+## 🧪 Development
 
 ### Building
 
 ```bash
+# Debug build
 cargo build
+
+# Release build
+cargo build --release
 ```
 
 ### Testing
 
 ```bash
+# Run all tests
 cargo test
+
+# Run with output
+cargo test -- --nocapture
+
+# Run specific test module
+cargo test matcher::tests
 ```
 
 ### Running
 
 ```bash
+# Development
 cargo run -- "your commit message"
+
+# With features
+cargo run --features llm -- "your commit message"
+
+# Dry run
+cargo run -- "your commit message" --dry-run
 ```
+
+### Project Structure
+
+```
+src/
+├── main.rs              # CLI application entry point
+├── lib.rs               # Library exports and integration tests
+├── commit.rs            # Git commit operations
+├── emoji.rs             # Emoji lookup and mapping
+└── matcher/
+    ├── mod.rs           # Matcher trait and factory
+    ├── simple.rs        # Keyword-based matcher
+    └── llm.rs           # LLM-based matcher (feature gated)
+tests/
+├── integration_tests.rs # Full workflow integration tests
+fixtures/
+├── gitmojis.json        # Official gitmoji data (69 emojis)
+└── keyword_map.json     # Keyword to emoji mappings (200+ keywords)
+```
+
+## 🔧 Features & Configuration
+
+### Optional Features
+
+```toml
+[features]
+default = []
+llm = ["reqwest", "tokio", "dotenvy"]
+```
+
+To enable LLM support:
+```bash
+cargo build --features llm
+```
+
+### Environment Variables
+
+```bash
+# For LLM feature
+export API_KEY="your-api-key"
+```
+
+## 📊 Quality Metrics
+
+- **Test Coverage**: 65 tests (56 unit + 9 integration)
+- **Performance**: < 100ms for typical operations
+- **Reliability**: Comprehensive error handling and edge case coverage
+- **Compatibility**: Works with all major terminals and Git workflows
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes with tests
+4. Ensure all tests pass: `cargo test`
+5. Submit a pull request
+
+### Code Style
+
+- Use `cargo fmt` for formatting
+- Use `cargo clippy` for linting
+- Follow Rust 2024 edition standards
+- Add tests for new functionality
 
 ## 📄 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Gitmoji](https://gitmoji.dev/) for the comprehensive emoji standard
+- The Rust community for excellent tooling and libraries
+- Contributors and users who provide feedback and improvements

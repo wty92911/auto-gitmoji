@@ -1,26 +1,30 @@
 [package]
-name = "auto-gitmoji"
 authors = ["wty92911 <2066946886@qq.com>"]
-description = "A Rust CLI tool that automatically prepends appropriate gitmoji to your commit messages based on intelligent keyword matching."
-version = "0.1.1"
-license = "MIT"
-repository = "https://github.com/wty92911/auto-gitmoji"
-edition = "2021"
-keywords = ["cli", "git", "gitmoji", "commit"]
 categories = ["command-line-utilities"]
+description = "A Rust CLI tool that automatically prepends appropriate gitmoji to your commit messages based on intelligent keyword matching."
+edition = "2024"
+keywords = ["cli", "git", "gitmoji", "commit", "llm"]
+license = "MIT"
+name = "auto-gitmoji"
 readme = "README.md"
+repository = "https://github.com/wty92911/auto-gitmoji"
+version = "0.1.2"
 
 [[bin]]
 name = "amoji"
 path = "src/main.rs"
 
 [dependencies]
+anyhow = "1.0"
 clap = { version = "4.0", features = ["derive"] }
+dotenvy = { version = "0.15", optional = true }
+regex = "1.0"
+reqwest = { version = "0.11", features = ["json"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-anyhow = "1.0"
 thiserror = "1.0"
+tokio = { version = "1.0", features = ["rt-multi-thread"], optional = true }
 
 [features]
 default = []
-# llm = ["reqwest", "tokio"]
+llm = ["reqwest", "tokio", "dotenvy"]
