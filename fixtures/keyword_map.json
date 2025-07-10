@@ -1,7 +1,4 @@
 {
-  "add": ":sparkles:",
-  "added": ":sparkles:",
-  "adding": ":sparkles:",
   "new": ":sparkles:",
   "feature": ":sparkles:",
   "feat": ":sparkles:",
@@ -14,7 +11,7 @@
   "introduce": ":sparkles:",
   "introduced": ":sparkles:",
   "introducing": ":sparkles:",
-  
+
   "fix": ":bug:",
   "fixed": ":bug:",
   "fixing": ":bug:",
@@ -29,12 +26,12 @@
   "solve": ":bug:",
   "solved": ":bug:",
   "solving": ":bug:",
-  
+
   "hotfix": ":ambulance:",
   "critical": ":ambulance:",
   "urgent": ":ambulance:",
   "emergency": ":ambulance:",
-  
+
   "improve": ":art:",
   "improved": ":art:",
   "improving": ":art:",
@@ -50,7 +47,7 @@
   "clean": ":art:",
   "cleaned": ":art:",
   "cleaning": ":art:",
-  
+
   "perf": ":zap:",
   "performance": ":zap:",
   "optimize": ":zap:",
@@ -61,7 +58,7 @@
   "boost": ":zap:",
   "boosted": ":zap:",
   "boosting": ":zap:",
-  
+
   "remove": ":fire:",
   "removed": ":fire:",
   "removing": ":fire:",
@@ -74,7 +71,7 @@
   "eliminate": ":fire:",
   "eliminated": ":fire:",
   "eliminating": ":fire:",
-  
+
   "docs": ":memo:",
   "doc": ":memo:",
   "documentation": ":memo:",
@@ -86,7 +83,7 @@
   "commented": ":bulb:",
   "commenting": ":bulb:",
   "comments": ":bulb:",
-  
+
   "test": ":white_check_mark:",
   "tests": ":white_check_mark:",
   "testing": ":white_check_mark:",
@@ -95,11 +92,11 @@
   "specs": ":white_check_mark:",
   "unit": ":white_check_mark:",
   "integration": ":white_check_mark:",
-  
+
   "refactor": ":recycle:",
   "refactored": ":recycle:",
   "refactoring": ":recycle:",
-  
+
   "deploy": ":rocket:",
   "deployed": ":rocket:",
   "deploying": ":rocket:",
@@ -107,7 +104,7 @@
   "release": ":rocket:",
   "released": ":rocket:",
   "releasing": ":rocket:",
-  
+
   "style": ":lipstick:",
   "styles": ":lipstick:",
   "styling": ":lipstick:",
@@ -116,7 +113,7 @@
   "design": ":lipstick:",
   "designed": ":lipstick:",
   "designing": ":lipstick:",
-  
+
   "init": ":tada:",
   "initial": ":tada:",
   "start": ":tada:",
@@ -125,7 +122,7 @@
   "begin": ":tada:",
   "beginning": ":tada:",
   "project": ":tada:",
-  
+
   "security": ":lock:",
   "secure": ":lock:",
   "secured": ":lock:",
@@ -133,7 +130,7 @@
   "vulnerability": ":lock:",
   "exploit": ":lock:",
   "privacy": ":lock:",
-  
+
   "config": ":wrench:",
   "configuration": ":wrench:",
   "configure": ":wrench:",
@@ -141,24 +138,21 @@
   "configuring": ":wrench:",
   "settings": ":wrench:",
   "setup": ":wrench:",
-  
+
   "dependency": ":package:",
   "dependencies": ":package:",
   "dep": ":package:",
   "deps": ":package:",
   "package": ":package:",
   "packages": ":package:",
-  
+
   "upgrade": ":arrow_up:",
   "upgraded": ":arrow_up:",
   "upgrading": ":arrow_up:",
-  "update": ":arrow_up:",
-  "updated": ":arrow_up:",
-  "updating": ":arrow_up:",
   "bump": ":arrow_up:",
   "bumped": ":arrow_up:",
   "bumping": ":arrow_up:",
-  
+
   "downgrade": ":arrow_down:",
   "downgraded": ":arrow_down:",
   "downgrading": ":arrow_down:",
@@ -166,150 +160,150 @@
   "reverted": ":rewind:",
   "reverting": ":rewind:",
   "rollback": ":rewind:",
-  
+
   "merge": ":twisted_rightwards_arrows:",
   "merged": ":twisted_rightwards_arrows:",
   "merging": ":twisted_rightwards_arrows:",
-  
+
   "move": ":truck:",
   "moved": ":truck:",
   "moving": ":truck:",
   "rename": ":truck:",
   "renamed": ":truck:",
   "renaming": ":truck:",
-  
+
   "breaking": ":boom:",
   "break": ":boom:",
   "breaks": ":boom:",
   "major": ":boom:",
-  
+
   "typo": ":pencil2:",
   "typos": ":pencil2:",
   "spelling": ":pencil2:",
-  
+
   "wip": ":construction:",
   "progress": ":construction:",
   "working": ":construction:",
   "work": ":construction:",
   "todo": ":construction:",
-  
+
   "ci": ":green_heart:",
   "build": ":construction_worker:",
   "builds": ":construction_worker:",
   "building": ":construction_worker:",
-  
+
   "assets": ":bento:",
   "asset": ":bento:",
   "images": ":bento:",
   "image": ":bento:",
-  
+
   "accessibility": ":wheelchair:",
   "a11y": ":wheelchair:",
   "accessible": ":wheelchair:",
-  
+
   "mock": ":clown_face:",
   "mocking": ":clown_face:",
   "mocked": ":clown_face:",
   "mocks": ":clown_face:",
-  
+
   "gitignore": ":see_no_evil:",
   "ignore": ":see_no_evil:",
-  
+
   "experiment": ":alembic:",
   "experimental": ":alembic:",
   "experimenting": ":alembic:",
-  
+
   "seo": ":mag:",
   "search": ":mag:",
-  
+
   "types": ":label:",
   "type": ":label:",
   "typing": ":label:",
   "typescript": ":label:",
-  
+
   "seed": ":seedling:",
   "seeds": ":seedling:",
   "seeding": ":seedling:",
-  
+
   "flag": ":triangular_flag_on_post:",
   "flags": ":triangular_flag_on_post:",
   "feature-flag": ":triangular_flag_on_post:",
   "feature-flags": ":triangular_flag_on_post:",
-  
+
   "error": ":goal_net:",
   "errors": ":goal_net:",
   "catch": ":goal_net:",
   "catching": ":goal_net:",
   "exception": ":goal_net:",
   "exceptions": ":goal_net:",
-  
+
   "animation": ":dizzy:",
   "animations": ":dizzy:",
   "transition": ":dizzy:",
   "transitions": ":dizzy:",
-  
+
   "deprecate": ":wastebasket:",
   "deprecated": ":wastebasket:",
   "deprecating": ":wastebasket:",
-  
+
   "auth": ":passport_control:",
   "authentication": ":passport_control:",
   "authorization": ":passport_control:",
   "permissions": ":passport_control:",
   "roles": ":passport_control:",
-  
+
   "patch": ":adhesive_bandage:",
   "patches": ":adhesive_bandage:",
   "patching": ":adhesive_bandage:",
   "quick": ":adhesive_bandage:",
   "minor": ":adhesive_bandage:",
-  
+
   "explore": ":monocle_face:",
   "exploring": ":monocle_face:",
   "investigation": ":monocle_face:",
   "investigate": ":monocle_face:",
   "investigating": ":monocle_face:",
-  
+
   "dead": ":coffin:",
   "unused": ":coffin:",
   "obsolete": ":coffin:",
-  
+
   "failing": ":test_tube:",
   "fail": ":test_tube:",
   "failed": ":test_tube:",
-  
+
   "business": ":necktie:",
   "logic": ":necktie:",
-  
+
   "health": ":stethoscope:",
   "healthcheck": ":stethoscope:",
   "monitoring": ":stethoscope:",
   "monitor": ":stethoscope:",
-  
+
   "infrastructure": ":bricks:",
   "infra": ":bricks:",
-  
+
   "developer": ":technologist:",
   "dev": ":technologist:",
   "dx": ":technologist:",
   "experience": ":technologist:",
-  
+
   "sponsor": ":money_with_wings:",
   "sponsors": ":money_with_wings:",
   "funding": ":money_with_wings:",
   "money": ":money_with_wings:",
-  
+
   "thread": ":thread:",
   "threading": ":thread:",
   "concurrency": ":thread:",
   "concurrent": ":thread:",
   "parallel": ":thread:",
-  
+
   "validation": ":safety_vest:",
   "validate": ":safety_vest:",
   "validated": ":safety_vest:",
   "validating": ":safety_vest:",
-  
+
   "offline": ":airplane:",
   "offline-support": ":airplane:"
 }

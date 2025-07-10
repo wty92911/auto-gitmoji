@@ -1,4 +1,4 @@
-# Auto-Gitmoji 
+# Auto-Gitmoji
 
 A Rust CLI tool that automatically prepends appropriate gitmoji to your commit messages based on intelligent keyword matching.
 
@@ -6,12 +6,14 @@ A Rust CLI tool that automatically prepends appropriate gitmoji to your commit m
 
 - **Intelligent Matching**: Uses first-word keyword matching with 200+ keyword mappings
 - **Comprehensive Emoji Support**: All 69 official gitmojis from the gitmoji standard
-- **High Confidence Scoring**: 90% confidence for exact matches, with fallback options
 - **Git Integration**: Seamlessly integrates with your Git workflow
 - **Dry Run Mode**: Preview commits before executing
 - **Emoji Display**: View all available gitmojis
 - **Robust Error Handling**: Validates staged changes and Git repository status
 
+### Future Features
+- [ ] Use LLM to predict the emoji
+- [ ] Better error info
 ## 🚀 Installation
 
 ### Prerequisites
@@ -26,6 +28,12 @@ git clone https://github.com/yourusername/auto-gitmoji.git
 cd auto-gitmoji
 cargo build --release
 cargo install --path .
+```
+
+### From Crates.io
+
+```bash
+cargo install auto-gitmoji
 ```
 
 ## 📋 Usage
@@ -52,7 +60,7 @@ amoji --show-emoji
 amoji "add user profile page"
 # Result: ✨ :sparkles: add user profile page
 
-# Bug fixes  
+# Bug fixes
 amoji "fix memory leak in data processor"
 # Result: 🐛 :bug: fix memory leak in data processor
 
@@ -80,11 +88,10 @@ amoji "hotfix critical vulnerability in auth"
 1. **Split**: Commit message split into words by whitespace
 2. **Filter**: Keep only alphanumeric words (+ hyphens/underscores)
 3. **Match**: Find first word that exists in keyword map
-4. **Confidence**: 90% confidence for exact matches, 30% for fallbacks
 
-### Keyword Categories
+### Keyword Categories Example
 
-- **Feature**: `add`, `create`, `implement`, `introduce`
+- **Feature**: `new`, `create`, `implement`, `introduce`
 - **Fixes**: `fix`, `repair`, `resolve`, `correct`, `hotfix`
 - **Documentation**: `docs`, `documentation`, `readme`, `comment`
 - **Refactoring**: `refactor`, `restructure`, `reorganize`, `cleanup`
@@ -134,4 +141,6 @@ cargo test
 cargo run -- "your commit message"
 ```
 
-#
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
