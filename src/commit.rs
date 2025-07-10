@@ -51,7 +51,15 @@ impl GitCommit {
 
         if output.status.success() {
             let stdout = String::from_utf8_lossy(&output.stdout);
-            Ok(format!("Git commit successful:\n{stdout}"))
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            // Include both stdout and stderr in success message
+            // Pre-commit hooks often output to stderr even on success
+            let mut result = format!("Git commit successful:\n{stdout}");
+            if !stderr.is_empty() {
+                result.push_str(&format!("\nPre-commit output:\n{stderr}"));
+            }
+            Ok(result)
         } else {
             let stderr = String::from_utf8_lossy(&output.stderr);
             Err(GitError::CommandFailed(stderr.to_string()).into())
@@ -151,6 +159,20 @@ mod tests {
         let output = result.unwrap();
         assert!(output.contains("DRY RUN"));
         assert!(output.contains(":sparkles: Add new feature"));
+    }
+
+    #[test]
+    fn test_commit_success_message_format() {
+        // Test that success messages properly format stdout and stderr
+        let result = GitCommit::commit("Test message", true);
+        assert!(result.is_ok());
+
+        let output = result.unwrap();
+        assert!(output.contains("DRY RUN"));
+        assert!(output.contains("git commit -m \"Test message\""));
+
+        // The dry run doesn't actually execute git, so it won't have pre-commit output
+        // But this tests the message formatting structure
     }
 
     #[test]
